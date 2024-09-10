@@ -87,8 +87,10 @@ Watch a demo of the app here: [Video Demo Link](<URL>)
  - `forbidden.html`: Page shown to unauthorized users that try to access an admin page.
  - `index.html`: Users's homepage where a summary of their activities and the pending activities for the current day are shown.
  - `inventory.html`: Inventory management, add and remove items. Sort items by quantity, category or item name.
+ - `manage_categories.html`: Category management. Create, modify and delete categories.
  - `login.html`: Process user login.
  - `register.html`: Users registration form.
+ - `change_password.html`: Users password change form.
  - `shopping_list.html`: Shopping list management. Create shopping lists, sort lists by date. Displays most recent shopping list, with the option to mark as complete, which adds the items on it to the inventory.
  - `task_view.html`: Lets users select a date to view activities for selected date.
  - `view_shopping_list.html`: Detailed view of shopping lists.
