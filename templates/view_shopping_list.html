@@ -1,0 +1,66 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    {{ list_header.list_name }}
+{% endblock %}
+
+{% block main %}
+    <h2>Shopping list view</h2>
+    <p><strong>{{ list_header.list_name }} ({{ list_header.date }})</strong></p>
+    <p class="text-danger"><strong>Notes: {{ list_header.notes }}</strong></p>
+    <table class="table table-light text-white mb-0">
+        <thead>
+            <tr>
+                <th scope="col">Item</th>
+                <th scope="col">Quantity</th>
+                <th scope="col">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for entry, inventory in shopping_list %}
+                <tr>
+                    <td>{{ inventory.item_name }}</td>
+                    <td>{{ entry.quantity }}</td>
+                    <td class="align-middle">
+                        <form action="/delete_from_shopping" method="POST">
+                            <input type="hidden" name="list_id" value="{{ entry.list_id }}">
+                            <input type="hidden" name="item_id" value="{{ inventory.item_id }}">
+                            <button type="submit" class="btn btn-link"><i class="fas fa-trash-alt fa-lg text-danger"></i></button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <hr>
+
+    <h2>All Shopping Lists</h2>
+    <table class="table table-light text-white mb-0">
+        <thead>
+            <tr>
+                <th scope="col">List Name</th>
+                <th scope="col">Date</th>
+                <th scope="col">Status</th>
+                <th scope="col">Notes</th>
+                <th scope="col">View</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for list in all_lists %}
+                <tr class="fw-normal">
+                    <td>{{ list.list_name }}</td>
+                    <td>{{ list.date }}</td>
+                    <td> <span class="badge bg-{{ 'danger' if list.status=='active' else 'success'}}">{{ list.status }}</span></td>
+                    <td>{{ list.notes or 'No notes' }}</td>
+                    <td class="align-middle">
+                        <form action="{{ url_for('view_shopping_list') }}" method="POST">
+                            <input type="hidden" name="list_id" value="{{ list.list_id }}">
+                            <button type="submit" class="btn btn-link"><i class="fa-solid fa-magnifying-glass fa-lg"></i></button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+{% endblock %}

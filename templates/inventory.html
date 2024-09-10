@@ -1,0 +1,154 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Inventory management
+{% endblock %}
+
+{% block main %}
+    <h2>Welcome to the inventory management</h2>
+    <hr>
+    <section id="options">
+        <h6>Please select an option</h6>
+        <button class="btn btn-primary" id="showItemButton">Add item</button>
+    </section>
+    <div class="container py-5" id="item_form" style="display: none;">
+      <form action="/add_item" method="post">
+          <div class="row justify-content-md-center mb-3">
+            <div class="col-sm-4 w-auto">
+              <input name="item_name" type="text" class="form-control w-auto mb-3" placeholder="Item to add" autofocus autocomplete="off">
+            </div>
+            <div class="col-sm-4 w-auto">
+              <input name="expire_date" type="text" class="form-control w-auto mb-3" placeholder="Expire date: dd/mm" autofocus autocomplete="off">
+            </div>
+            <div class="col-sm-4 w-auto">
+              <select name="item_category" class="form-select w-auto mb-3">
+                <option selected>Category</option>
+              {% for category in categories %}
+                <option name="{{ category.category }}">{{ category.category }}</option>
+              {% endfor %}
+            </select>
+            </div>
+            <div class="col-sm-4 w-auto">
+              <input type="number" class="form-control" name="item_quantity" id="quantity" placeholder="1"  value="1" min="1" style="width: 35%;">
+            </div>
+          </div>
+          <button class="btn btn-success mb-3">Save item</button>
+      </form>
+  </div>
+    <section class="vh-50 gradient-custom-2">
+        <div class="container py-5 h-100 w-auto">
+          <div class="row d-flex justify-content-center align-items-center h-100">
+            <div class="col-md-12 col-xl-10">
+      
+              <div class="card mask-custom border-white">
+                <div class="card-body p-4 text-white">
+      
+                  <div class="text-center pt-3 pb-2">
+                    <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-todo-list/check1.webp"
+                      alt="Check" width="60">
+                    <h2 class="my-4 text-primary">Current inventory</h2>
+                  </div>
+                  <form method="post" action="/inventory">
+                    <div class="table-responsive">
+                        <table class="table table-light table-hover mb-0">
+                            <thead>
+                            <tr>
+                                <th scope="col">
+                                  <a href="{{ url_for('inventory', sort_by='item_name', order='asc' if sort_by == 'item_name' and order == 'desc' else 'desc') }}">
+                                    Item
+                                    {% if sort_by == 'item_name' %}
+                                        <i class="fa fa-sort-{{ 'up' if order == 'asc' else 'down' }}"></i>
+                                    {% endif %}
+                                </a>
+                                </th>
+                                <th scope="col">
+                                  <a href="{{ url_for('inventory', sort_by='total_quantity', order='asc' if sort_by == 'total_quantity' and order == 'desc' else 'desc') }}">
+                                    Quantity
+                                    {% if sort_by == 'quantity' %}
+                                        <i class="fa fa-sort-{{ 'up' if order == 'asc' else 'down' }}"></i>
+                                    {% endif %}
+                                </a>
+                                </th>
+                                <th scope="col">Expire date</th>
+                                <th scope="col">
+                                  <a href="{{ url_for('inventory', sort_by='category_name', order='asc' if sort_by == 'category_name' and order == 'desc' else 'desc') }}">
+                                    Category
+                                    {% if sort_by == 'category_name' %}
+                                        <i class="fa fa-sort-{{ 'up' if order == 'asc' else 'down' }}"></i>
+                                    {% endif %}
+                                </a>
+                                </th>
+                                <th scope="col">Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody class="table-group-divider">
+                            {% for item, category in items %}
+                            <tr class="fw-normal">
+                                <th>
+                                <span class="ms-2">{{ item.item_name }}</span>
+                                </th>
+                                <td class="align-middle">
+                                    <h6 class="mb-0"><span class="badge {% if item.total_quantity == 0 %}bg-danger {% else %}bg-success {% endif %}">{{ item.total_quantity }}</span></h6>
+                                    <input type="hidden" name="item_id_{{ item.item_id }}" value="{{ item.item_id }}">
+                                    <input type="hidden" name="quantity_{{ item.item_id }}" id="quantity_{{ item.item_id }}" value="{{ item.total_quantity }}">
+                                </td>
+                                <td class="align-middle">
+                                    <h6 class="mb-0">{{ item.expire_date }}</h6>
+                                </td>
+                                <td class="align-middle">
+                                    <h6 class="mb-0">{{ category.category }}</h6>
+                                </td>
+                                <td class="align-middle">
+                                    <a href="#!" data-mdb-tooltip-init onclick="updateQuantity({{ item.item_id }}, 1)" title="Add"><i
+                                    class="fas fa-plus fa-lg text-success me-3"></i></a>
+                                    <a href="#!" onclick="updateQuantity({{ item.item_id }}, -1)" data-mdb-tooltip-init title="Remove"><i
+                                    class="fas fa-minus fa-lg text-danger"></i></a>
+                                    <input type="number" readonly="true" value="0" id="quantity_change_{{ item.item_id }}" class=" text-center" style="width: 15%; min-width: 25px;">
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <button class="btn btn-primary my-4">Save changes</button>
+                </form>
+      
+      
+                </div>
+              </div>
+      
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <script>
+        document.getElementById("showItemButton").onclick = function() {
+            let taskForm = document.getElementById("item_form");
+            if (taskForm.style.display === "none" || taskForm.style.display === "") {
+                taskForm.style.display = "block";
+            } else {
+                taskForm.style.display = "none";
+            }
+        };
+
+        function updateQuantity(itemId, change) {
+        var quantityInput = document.getElementById('quantity_' + itemId);
+        var quantityChangeInput = document.getElementById('quantity_change_' + itemId);
+
+        var currentQuantity = parseInt(quantityInput.value);
+        var newQuantity = currentQuantity + change;
+
+        if (newQuantity >= 0) { // Ensure quantity doesn't go negative
+            quantityInput.value = newQuantity;
+        }
+
+        // Update the quantity change input
+        var currentChange = parseInt(quantityChangeInput.value);
+        var newChange = currentChange + change;
+        quantityChangeInput.value = newChange;
+    }
+
+      </script>
+
+{% endblock %}

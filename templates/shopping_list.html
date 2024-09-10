@@ -1,0 +1,167 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Shopping List
+{% endblock %}
+
+{% block main %}
+    <h1>Shopping List Management</h1>
+    <hr>
+    {% if recent_list %}
+    <h2>Most Recent Shopping List</h2>
+    <form method="post" action="/complete_list" class="pt-3">
+        <p><strong>{{ recent_list_header.list_name }} ({{ recent_list_header.date }})</strong></p>
+        <table class="table table-hover text-white mb-0">
+            <thead>
+                <tr>
+                    <th scope="col">Item</th>
+                    <th scope="col">Quantity</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry, inventory in recent_list %}
+                    <tr>
+                        <td>{{ inventory.item_name }}</td>
+                        <td>{{ entry.quantity }}</td>
+                        <input type="hidden" name="item_id_{{ entry.entry_id }}" value="{{ inventory.item_id }}">
+                        <input type="hidden" name="quantity_{{ entry.entry_id }}" value="{{ entry.quantity }}">
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% if recent_list_header.status == 'active' %}
+                <div class="mb-3">
+                    <div>
+                        <label class="mx-3"for="exampleFormControlTextarea1" class="form-label">Notes</label>
+                    </div>
+                    <textarea class="w-25" id="list_notes" name="notes" rows="3"></textarea>
+                  </div>
+                <input type="hidden" name="recent_list_header_id" value="{{recent_list_header.list_id}}">
+                <button type="submit" class="btn btn-success">Mark as completed</button>
+        {% endif %}
+    </form>
+    {% else %}
+        <p>No shopping list found.</p>
+    {% endif %}
+    
+
+    <hr>
+
+    <h2>All Shopping Lists</h2>
+    <table class="table table-light table-striped text-white mb-0">
+        <thead>
+            <tr>
+                <th scope="col">
+                    <a href="{{ url_for('shopping_list', sort_by='list_name', order='asc' if sort_by == 'list_name' and order == 'desc' else 'desc') }}">
+                        List Name
+                        {% if sort_by == 'list_name' %}
+                            <i class="fa fa-sort-{{ 'up' if order == 'asc' else 'down' }}"></i>
+                        {% endif %}
+                    </a>
+                </th>
+                <th scope="col">
+                    <a href="{{ url_for('shopping_list', sort_by='date', order='asc' if sort_by == 'date' and order == 'desc' else 'desc') }}">
+                        Date
+                        {% if sort_by == 'date' %}
+                            <i class="fa fa-sort-{{ 'up' if order == 'asc' else 'down' }}"></i>
+                        {% endif %}
+                    </a>
+                </th>
+                <th scope="col">Status</th>
+                <th scope="col">Notes</th>
+                <th scope="col">View</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for list in all_lists %}
+                <tr>
+                    <td>{{ list.list_name }}</td>
+                    <td>{{ list.date }}</td>
+                    <td>
+                        <span class="badge bg-{{ 'danger' if list.status=='active' else 'success' }}">{{ list.status }}</span>
+                    </td>
+                    <td>{{ list.notes or 'No notes' }}</td>
+                    <td class="align-middle">
+                        <form action="/view_shopping_list" method="POST">
+                            <input type="hidden" name="list_id" value="{{ list.list_id }}">
+                            <button type="submit" class="btn btn-link"><i class="fa-solid fa-magnifying-glass fa-lg"></i></button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <hr>
+
+    <h2>Create New Shopping List</h2>
+    <form action="/create" method="POST">
+        <div class="container mb-3">
+            <div class="row justify-content-center">
+                <div class="mb-3 w-50">
+                    <label for="list_name" class="form-label">List Name</label>
+                    <input type="text" class="form-control" id="list_name" name="list_name" placeholder="Shopping List for {{ today }}">
+                </div>
+            </div>
+            <div class="row justify-content-center">
+                <div class="mb-3 w-50">
+                    <label for="list_date" class="form-label">Date</label>
+                    <input type="date" class="form-control" id="list_date" name="list_date" required>
+                </div>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Create List</button>
+    </form>
+
+    <hr>
+
+    <h2>Add to Shopping List</h2>
+    <form id="modify-list-form" action="/modify_shopping_list" method="POST">
+        <div class="container mb-3">
+            <div class="row justify-content-center">
+                <div class="mb-3 w-50">
+                    <label for="shopping_list_id" class="form-label">Select Shopping List</label>
+                    <select class="form-select" id="shopping_list_id" name="shopping_list_id" required>
+                        {% for list in all_lists %}
+                            <option value="{{ list.list_id }}">{{ list.list_name }} ({{ list.date }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div id="item-rows-container"></div>
+            <button type="button" class="btn btn-sm btn-success" id="add-item-btn">Add Item</button>
+        </div>
+        <button type="submit" class="btn btn-primary">Save</button>
+    </form>
+
+    <script>
+        document.getElementById('add-item-btn').addEventListener('click', function () {
+            const itemRow = document.createElement('div');
+            itemRow.classList.add('row', 'mb-3', 'align-items-center');
+    
+            itemRow.innerHTML = `
+                <div class="col-6">
+                    <select class="form-select" name="item_id[]" required>
+                        {% for item in items %}
+                            <option value="{{ item.item_id }}">{{ item.item_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-3">
+                    <input type="number" class="form-control" name="quantity[]" required min="1">
+                </div>
+                <div class="col-2">
+                    <span class="fas fa-trash-alt fa-lg text-danger delete-row-btn"></span>
+                </div>
+            `;
+    
+            document.getElementById('item-rows-container').appendChild(itemRow);
+    
+            // Attach delete event to the trash icon
+            itemRow.querySelector('.delete-row-btn').addEventListener('click', function () {
+                itemRow.remove();
+            });
+        });
+    </script>
+{% endblock %}
+

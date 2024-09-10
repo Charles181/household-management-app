@@ -1,0 +1,92 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Homepage
+{% endblock %}
+
+{% block main %}
+    <h1>Homepage</h1>
+    <hr>
+
+    <div class="container row justify-content-center mt-3">
+        <div class="card" style="width: 18rem;">
+            <div class="card-header text-primary">
+                <h5 class="card-title">User: {{ user.username}}</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">Pending tasks: {{ pending | length }}</li>
+                    <li class="list-group-item">Completed tasks: {{ completed | length }}</li>
+                    <li class="list-group-item">Total tasks: {{ pending | length + completed | length }}</li>
+                </ul>
+            </div>
+            
+        </div>
+    </div>
+    <!-- Task list for user -->
+    {% if assignments == None%}
+    <h2 class="m-4">No assignments for today! <h6>... yet.</h6></h2>
+    {% else %}
+      <section class="vh-50 gradient-custom-2">
+          <div class="container py-5 h-100">
+            <div class="row d-flex justify-content-center align-items-center h-100">
+              <div class="col-md-12 col-xl-10">
+        
+                <div class="card mask-custom border-white">
+                  <div class="card-body p-4 text-white">
+        
+                    <div class="text-center pt-3 pb-2">
+                      <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-todo-list/check1.webp"
+                        alt="Check" width="60">
+                      <h2 class="my-4 text-primary">Task List for today</h2>
+                      <h6 class="text-primary">{{ today }}</h6>
+                    </div>
+        
+                    <table class="table table-hover text-white mb-0">
+                      <thead>
+                        <tr>
+                          <th scope="col">Task</th>
+                          <th scope="col">Due date</th>
+                          <th scope="col">Completed</th>
+                          <th scope="col">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for assignment, task in assignments %}
+                        <tr class="fw-normal">
+                          <td class="align-middle">
+                            <span>{{ task.task_name }}</span>
+                          </td>
+                          <td class="align-middle">
+                            <span>{{ assignment.due_date }}</span>
+                          </td>
+                          <td class="align-middle">
+                            <h6 class="mb-0"><span class="badge {% if assignment.completed == False %} bg-danger {% else %} bg-success {% endif %}">{{ 'Yes' if assignment.completed else 'No' }}</span></h6><!-- If due date is past from today, set class to bg-danger, if not set it to bg-success -->
+                          </td>
+                          <td class="align-middle">
+                              <form action="/update_task" method="post" style="display: inline;">
+                                  <input type="hidden" name="assignment_id" value="{{ assignment.assignment_id }}">
+                                  <button type="submit" name="action" value="done" class="btn btn-link" data-mdb-tooltip-init title="Done"><i
+                                  class="fas fa-check fa-lg text-success me-3"></i></button>
+                              </form>
+                              <form action="/update_task" method="post" style="display: inline;">
+                                  <input type="hidden" name="assignment_id" value="{{ assignment.assignment_id }}">
+                                  <button type="submit" name="action" value="undone" class="btn btn-link p-0" data-mdb-tooltip-init title="Undone"><i
+                                  class="fas fa-xmark fa-lg text-danger"></i></button>
+                              </form>
+                          </td>
+                        </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+        
+        
+                  </div>
+                </div>
+        
+              </div>
+            </div>
+          </div>
+        </section>
+      {% endif %}
+{% endblock %}

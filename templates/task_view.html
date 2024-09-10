@@ -1,0 +1,90 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Task view
+{% endblock %}
+
+{% block main %}
+<h4>Select a date to view tasks</h4>
+<hr>
+<form method="post" action="/tasks">
+    <div class="form-group">
+      <div class="row mt-3 justify-content-md-center">
+        <div class="col-sm-4">
+          <label class="mt-1" for="selected_date">Select Date</label>
+        </div>
+        <div class="col-sm-4">
+          <input type="date" class="form-control w-auto mt-1" id="selected_date" name="selected_date" value="{{ today }}">
+        </div>
+      </div>
+      <button type="submit" class="btn btn-sm btn-primary mt-4">View Tasks</button>
+    </div>
+</form>
+{% if not assignments %}
+  <div class="container mt-5">
+    <h1>No date selected</h1>
+  </div>
+{% else %}
+  <section class="vh-50 gradient-custom-2">
+      <div class="container py-5 h-100">
+        <div class="row d-flex justify-content-center align-items-center h-100">
+          <div class="col-md-12 col-xl-10">
+    
+            <div class="card mask-custom border-white">
+              <div class="card-body p-4 text-white">
+    
+                <div class="text-center pt-3 pb-2">
+                  <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-todo-list/check1.webp"
+                    alt="Check" width="60">
+                  <h2 class="my-4 text-white">Task List for {{ selected_date }}</h2>
+                </div>
+    
+                <table class="table table-hover text-white mb-0">
+                  <thead>
+                    <tr>
+                      <th scope="col">Task</th>
+                      <th scope="col">Due date</th>
+                      <th scope="col">Completed</th>
+                      <th scope="col">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for assignment, task in assignments %}
+                    <tr class="fw-normal">
+                      <td class="align-middle">
+                        <span>{{ task.task_name }}</span>
+                      </td>
+                      <td class="align-middle">
+                        <span>{{ assignment.due_date }}</span>
+                      </td>
+                      <td class="align-middle">
+                        <h6 class="mb-0"><span class="badge {% if assignment.completed == False %} bg-danger {% else %} bg-success {% endif %}">{{ 'Yes' if assignment.completed else 'No' }}</span></h6><!-- If due date is past from today, set class to bg-danger, if not set it to bg-success -->
+                      </td>
+                      <td class="align-middle">
+                          <form action="/update_task" method="post" style="display: inline;">
+                              <input type="hidden" name="assignment_id" value="{{ assignment.assignment_id }}">
+                              <button type="submit" name="action" value="done" class="btn btn-link" data-mdb-tooltip-init title="Done"><i
+                              class="fas fa-check fa-lg text-success me-3"></i></button>
+                          </form>
+                          <form action="/update_task" method="post" style="display: inline;">
+                              <input type="hidden" name="assignment_id" value="{{ assignment.assignment_id }}">
+                              <button type="submit" name="action" value="undone" class="btn btn-link p-0" data-mdb-tooltip-init title="Undone"><i
+                              class="fas fa-xmark fa-lg text-danger"></i></button>
+                          </form>
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+    
+    
+              </div>
+            </div>
+    
+          </div>
+        </div>
+      </div>
+    </section>
+  {% endif %}
+
+{% endblock %}

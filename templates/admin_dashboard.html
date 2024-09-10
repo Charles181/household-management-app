@@ -1,0 +1,148 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Admin Dashboard
+{% endblock %}
+
+{% block main %}
+    <h1>Admin Dashboard</h1>
+    <hr>
+    <div class="row justify-content-center">
+        <div class="col-sm-4 w-auto my-2">
+            <button class="btn btn-primary" type="button" id="showTaskButton">Add task</button>
+        </div>
+        <div class="col-sm-4 w-auto my-2">
+            <button class="btn btn-primary" type="button" id="showUserButton">Add User</button>
+        </div>
+        <div class="col-sm-4 w-auto my-2">
+            <a href="/assign"><button class="btn btn-primary">Assign tasks</button></a>
+        </div>
+        <div class="col-sm-4 w-auto my-2">
+             <a href="/inventory"><button class="btn btn-primary">Inventory</button></a>
+        </div>
+        <div class="col-sm-4 w-auto my-2">
+            <a href="/shopping_list"><button class="btn btn-primary">Shopping List</button></a>
+        </div>
+    </div>
+    <div class="container vh-50 py-5" id="task_form" style="display: none;">
+        <form action="/add_task" method="post">
+            <div class="row justify-content-sm-center">
+                <input name="task_name" type="text" class="form-control w-auto mb-3" placeholder="Task" autofocus autocomplete="off">
+            </div>
+            <div clasS="mb-3">
+                <textarea name="task_description" id="description" maxlength="100" placeholder="Describe the activity" cols="60"></textarea>
+            </div>
+            <button class="btn btn-info mb-3">Save task</button>
+        </form>
+    </div>
+    <div class="container text-center my-4" id="user_form" style="display: none;">
+        <form method="post" action="/register">
+          <div class="container">
+            <div class="row justify-content-md-center">
+                <div class="col-sm-4 w-auto">
+                    <input required autocomplete="off" autofocus class="form-control mx-auto w-auto" name="username" placeholder="Username" type="text">
+                    <div name="username-result"></div>
+                </div>
+            </div>
+            <div class="row justify-content-md-center mt-2">
+                <div class="col-sm-4 w-auto">
+                    <input type="password" required class="form-control mx-auto w-auto" name="password" placeholder="Password">
+                </div>
+            </div>
+            <div class="row justify-content-md-center mt-2">
+                <div class="col-sm-4 w-auto">
+                    <input type="password" required class="form-control mx-auto w-auto" name="confirmation" placeholder="Confirm password">
+                </div>
+            </div>
+            <button type="submit" class="btn btn-info mt-2">Add user</button>
+          </div>
+        </form>
+    </div>
+    <!-- Date selection form to display activities table-->
+    <form method="post" action="/admin">
+        <div class="form-group">
+          <div class="row mt-3 justify-content-md-center">
+            <div class="col-sm-4">
+              <label class="mt-1" for="selected_date">Select Date</label>
+            </div>
+            <div class="col-sm-4">
+              <input type="date" class="form-control w-auto mt-1" id="selected_date" name="selected_date" value="{{ today }}">
+            </div>
+          </div>
+          <button type="submit" class="btn btn-sm btn-primary mt-4">View Tasks</button>
+        </div>
+    </form>
+    <section class="vh-50 gradient-custom-2">
+        <div class="container py-5 h-100">
+          <div class="row d-flex justify-content-center align-items-center h-100">
+            <div class="col-md-12 col-xl-10">
+      
+              <div class="card mask-custom border-white">
+                <div class="card-body p-4 text-white">
+      
+                  <div class="text-center pt-3 pb-2">
+                    <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-todo-list/check1.webp"
+                      alt="Check" width="60">
+                    <h2 class="my-4 text-primary">Task List for {{ selected_date }}</h2>
+                  </div>
+      
+                  <table class="table table-hover text-white mb-0">
+                    <thead>
+                      <tr>
+                        <th scope="col">Team Member</th>
+                        <th scope="col">Task</th>
+                        <th scope="col">Completed</th>
+                        <th scope="col">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for assignment, user, task in assignments %}
+                      <tr class="fw-normal">
+                        <th>
+                          <span class="ms-2">{{ user.username }}</span>
+                        </th>
+                        <td class="align-middle">
+                          <span>{{ task.task_name }}</span>
+                        </td>
+                        <td class="align-middle">
+                          <h6 class="mb-0"><span class="badge {% if assignment.completed == False %} bg-danger {% else %} bg-success {% endif %}">{{ assignment.completed }}</span></h6><!-- If due date is past from today, set class to bg-danger, if not set it to bg-success -->
+                        </td>
+                        <td class="align-middle">
+                          <a href="#!" data-mdb-tooltip-init title="Done"><i
+                              class="fas fa-check fa-lg text-success me-3"></i></a>
+                          <a href="#!" data-mdb-tooltip-init title="Remove"><i
+                              class="fas fa-trash-alt fa-lg text-danger"></i></a>
+                        </td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+      
+      
+                </div>
+              </div>
+      
+            </div>
+          </div>
+        </div>
+      </section>
+      <script>
+        document.getElementById("showTaskButton").onclick = function() {
+            let taskForm = document.getElementById("task_form");
+            if (taskForm.style.display === "none" || taskForm.style.display === "") {
+                taskForm.style.display = "block";
+            } else {
+                taskForm.style.display = "none";
+            }
+        };
+
+        document.getElementById("showUserButton").onclick = function() {
+            let userForm = document.getElementById("user_form");
+            if (userForm.style.display === "none" || userForm.style.display === "") {
+                userForm.style.display = "block";
+            } else {
+                userForm.style.display = "none";
+            }
+        };
+      </script>
+{% endblock %}

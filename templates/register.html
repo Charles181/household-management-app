@@ -1,0 +1,38 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Register
+{% endblock %}
+
+{% block main %}
+    <div class="container text-center">
+        <form method="post" action="/register">
+            <div class="row justify-content-md-center">
+                <div class="col-sm-4 w-auto">
+                    <label for="username">User name: </label>
+                </div>
+                <div class="col-sm-4 w-auto">
+                    <input required autocomplete="off" autofocus class="form-control mx-auto w-auto" name="username" placeholder="Username" type="text">
+                    <div name="username-result"></div>
+                </div>
+            </div>
+            <div class="row justify-content-md-center mt-2">
+                <div class="col-sm-4 w-auto">
+                    <label for="password">Password: </label>
+                </div>
+                <div class="col-sm-4 w-auto">
+                    <input type="password" required class="form-control mx-auto w-auto" name="password" placeholder="Password">
+                </div>
+            </div>
+            <div class="row justify-content-md-center mt-2">
+                <div class="col-sm-4 w-auto">
+                    <label for="password">Confirm password: </label>
+                </div>
+                <div class="col-sm-4 w-auto">
+                    <input type="password" required class="form-control mx-auto w-auto" name="confirmation" placeholder="Password">
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary mt-2">Register</button>
+        </form>
+    </div>
+{% endblock %}

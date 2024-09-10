@@ -1,0 +1,37 @@
+{% extends "layout.html"%}
+
+{% block title %}
+    Task assignment
+{% endblock %}
+
+{% block main %}
+    <h3>Task assignment</h3>
+    <hr>
+    <div class="container">
+        <form action="/assign" method="post">
+            <div class="row mb-3">
+                <div class="col-sm-4 mb-3">
+                    <select class="form-select" name="task_name" id="task">
+                        <option selected>Select a task to assign: </option>
+                        {% for task in tasks %}
+                        <option name="{{ task.task_name }}">{{ task.task_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-sm-4 mb-3">
+                    <select class="form-select" name="user_name" id="user">
+                        <option selected>User</option>
+                        {% for user in users %}
+                        <option name="{{ user.username }}">{{ user.username}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-sm-4 w-auto">
+                    <label class="form-input" for="due_date">Due date:</label>
+                    <input type="date" id="due_date" name="due_date" value="{{ today }}" min="{{ today }}" />
+                </div>
+            </div>
+            <button type="submit" class="btn btn-success">Assign task</button>
+        </form>
+    </div>
+{% endblock %}
