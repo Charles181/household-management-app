@@ -101,6 +101,7 @@ Watch a demo of the app here: [Video Demo Link](<URL>)
 - Generate reports of completed tasks and shopping lists.
 - Add email notifications for task assignments.
 - Add email capabilities for shopping lists.
+- Expand shopping lists functionalities.
 - More features.
 
 ## Contributing
