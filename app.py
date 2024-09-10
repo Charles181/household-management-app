@@ -22,7 +22,7 @@ def create_tables():
     app.before_request_funcs[None].remove(create_tables)
     db.create_all()
 
-@app.before_first_request
+@app.before_request
 def create_admin():
     admin_user = Users.query.filter_by(user_type='admin').first()
     if not admin_user:
@@ -71,6 +71,22 @@ def register():
 
     else:
         return render_template("register.html")
+    
+@app.route("/change_password", methods=["GET", "POST"])
+def change_password():
+    if request.method == 'POST':
+        new_password = request.form.get("new_password")
+        confirmation = request.form.get("confirmation")
+        if new_password != confirmation:
+            flash("New password and confirmation do not match!")
+            return redirect("change_password")
+        hashed_password = generate_password_hash(new_password, method='pbkdf2:sha256')
+        user = Users.query.filter_by(id=session["user_id"]).first()
+        user.password_hash = hashed_password
+        db.session.commit()
+        flash("Password changed successfully!")
+        return redirect("/")
+    return render_template("change_password.html")
 
 @app.route("/login", methods=["GET", "POST"]) # This function code was taken from cs50x problem set 9 - Finance
 def login():
