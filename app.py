@@ -22,6 +22,17 @@ def create_tables():
     app.before_request_funcs[None].remove(create_tables)
     db.create_all()
 
+@app.before_first_request
+def create_admin():
+    admin_user = Users.query.filter_by(user_type='admin').first()
+    if not admin_user:
+        # Create a default admin user
+        hashed_password = generate_password_hash("defaultadminpassword", method='pbkdf2:sha256')
+        new_admin = Users(username="admin", password_hash=hashed_password, user_type='admin')
+        db.session.add(new_admin)
+        db.session.commit()
+        print("Admin user created with username 'admin' and password 'defaultadminpassword'")
+
 @app.route("/")
 @login_required
 def index():
