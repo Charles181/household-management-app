@@ -200,6 +200,42 @@ def add_item():
     db.session.commit()
     flash(f"{item_name} added successfully.")
     return redirect("/inventory")
+
+@app.route("/manage_categories", methods=["POST", "GET"])
+@login_required
+@admin_required
+def manage_categories():
+    categories = Categories.query.all()
+    actions = ["Delete", "Modify"]
+    if request.method == "POST":
+        action = request.form.get("action")
+        selected_category_id = request.form.get("selected_category")
+        new_category_name = request.form.get("new_category_name")
+        new_category = request.form.get("new_category")
+
+        if action == "Modify" and selected_category_id and new_category_name:
+            # Modify the selected category's name
+            category = Categories.query.get(selected_category_id)
+            if category:
+                category.category = new_category_name
+                db.session.commit()
+                flash(f"Category '{category.category}' has been updated successfully!", "success")
+        elif action == "Delete" and selected_category_id:
+            # Delete the selected category
+            category = Categories.query.get(selected_category_id)
+            if category:
+                db.session.delete(category)
+                db.session.commit()
+                flash(f"Category '{category.category}' has been deleted.", "success")
+        elif new_category:
+            # Add a new category
+            category_to_add = Categories(category=new_category)
+            db.session.add(category_to_add)
+            db.session.commit()
+            flash(f"New category '{new_category}' added successfully!", "success")
+
+        return redirect("/manage_categories") 
+    return render_template("manage_categories.html", categories=categories, actions=actions)
     
 @app.route("/assign", methods=["GET", "POST"])
 @login_required
