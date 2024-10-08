@@ -88,5 +88,13 @@
             </div>
           </div>
         </section>
-      {% endif %}
+    {% endif %}
+    <hr>
+    <section class="fun_facts">
+      <h4>Did you know?</h4>
+      <blockquote class="blockquote">
+        {{ fact }}
+      </blockquote>
+      <p class="blockquote-footer">Random useless fact obtained using <a href="https://uselessfacts.jsph.pl/">uselessfacts API</a></p>
+    </section>
 {% endblock %}

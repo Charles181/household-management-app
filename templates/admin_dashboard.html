@@ -108,11 +108,17 @@
                           <h6 class="mb-0"><span class="badge {% if assignment.completed == False %} bg-danger {% else %} bg-success {% endif %}">{{ assignment.completed }}</span></h6><!-- If due date is past from today, set class to bg-danger, if not set it to bg-success -->
                         </td>
                         <td class="align-middle">
-                          <a href="#!" data-mdb-tooltip-init title="Done"><i
-                              class="fas fa-check fa-lg text-success me-3"></i></a>
-                          <a href="#!" data-mdb-tooltip-init title="Remove"><i
-                              class="fas fa-trash-alt fa-lg text-danger"></i></a>
-                        </td>
+                          <form action="/update_task" method="post" style="display: inline;">
+                              <input type="hidden" name="assignment_id" value="{{ assignment.assignment_id }}">
+                              <button type="submit" name="action" value="done" class="btn btn-link" data-mdb-tooltip-init title="Done"><i
+                              class="fas fa-check fa-lg text-success me-3"></i></button>
+                          </form>
+                          <form action="/update_task" method="post" style="display: inline;">
+                              <input type="hidden" name="assignment_id" value="{{ assignment.assignment_id }}">
+                              <button type="submit" name="action" value="undone" class="btn btn-link p-0" data-mdb-tooltip-init title="Undone"><i
+                              class="fas fa-xmark fa-lg text-danger"></i></button>
+                          </form>
+                      </td>
                       </tr>
                       {% endfor %}
                     </tbody>

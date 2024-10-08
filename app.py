@@ -5,6 +5,7 @@ from models import db, Users, Tasks, Assignments, Inventory, ShoppingLists, Cate
 from werkzeug.security import check_password_hash, generate_password_hash
 from helpers import login_required, admin_required
 from datetime import datetime
+import requests
 import os
 
 app = Flask(__name__)
@@ -45,7 +46,14 @@ def index():
         assignments = None
     completed = Assignments.query.filter_by(user_id=session["user_id"], completed=1).all()
     pending = Assignments.query.filter_by(user_id=session["user_id"], completed=0).all()
-    return render_template("index.html", user=user, assignments=assignments, completed=completed, pending=pending, today=today)
+
+    response = requests.get("https://uselessfacts.jsph.pl/api/v2/facts/random")
+    if response.status_code == 200:
+        fact = response.json().get("text")
+    else:
+        fact = "Could not retrieve a useless fact at this time."
+
+    return render_template("index.html", user=user, assignments=assignments, completed=completed, pending=pending, today=today, fact=fact)
     
 @app.route("/register", methods=["POST", "GET"])
 def register():
@@ -320,6 +328,8 @@ def update_task():
 
     else:
         flash("Task not found!", "danger")
+    if session["user_type"] == 'admin':
+        return redirect("/admin")
     return redirect("/")
 
 @app.route("/tasks", methods=["POST", "GET"])
